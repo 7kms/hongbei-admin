@@ -1,0 +1,11 @@
+{
+    "presets": [
+        ["env", {"modules": false}],
+        "stage-0",
+        "react"],
+    "plugins": [
+        "react-hot-loader/babel",
+        // 开启 React 代码的模块热替换(HMR)
+        "transform-decorators-legacy"
+    ]
+}
