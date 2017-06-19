@@ -31,10 +31,10 @@ module.exports = {
     output: {
       path: resolve(__dirname, '../dist/'),
 
-      publicPath: '/dist/',
+      publicPath: '/',
       // 对于热替换(HMR)是必须的，让 webpack 知道在哪里载入热更新的模块(chunk)
 
-      filename: '[name].js'
+      filename: 'js/[name].js'
       // 输出的打包文件
     },
     resolve: {
@@ -46,6 +46,8 @@ module.exports = {
       }
     },
     devtool: '#cheap-module-source-map',
+    stats: "errors-only",
+    //控制要显示的 bundle 信息
 
     devServer: {
         hot: true,
@@ -54,7 +56,7 @@ module.exports = {
         contentBase: resolve(__dirname, '../dist/'),
         // 输出文件的路径
 
-        publicPath: '/dist/',
+        publicPath: '/',
         // 和上文 output 的“publicPath”值保持一致
 
         noInfo: true,
@@ -130,7 +132,7 @@ module.exports = {
         new webpack.NamedModulesPlugin(),
         // 当模块热替换(HMR)时在浏览器控制台输出对用户更友好的模块名字信息
 
-        new ExtractTextPlugin('[name].[contenthash:6].css'),
+        new ExtractTextPlugin('css/[name].[contenthash:6].css'),
         // 单独提取入口依赖的css文件
 
 

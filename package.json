@@ -1,7 +1,7 @@
 {
-  "name": "react-exercise",
+  "name": "hongbei",
   "version": "1.0.0",
-  "description": "react-exercise",
+  "description": "hongbei-admin",
   "main": "index.js",
   "scripts": {
     "dev": "rimraf dist && webpack-dev-server --config build/webpack-dev.config.js",
