@@ -9,6 +9,9 @@ import styles from '~less/mainpage.less';
 let cx = classNames.bind(styles);
 
 class NavItem extends Component {
+  static propTypes = {
+    item: PropTypes.object.isRequired
+  }
   constructor(props) {
     super(props);
     this.state = {
@@ -78,9 +81,9 @@ class NavItem extends Component {
   }
 }
 
-NavItem.PropTypes = {
-  item: PropTypes.object.isRequired
-};
+// NavItem.propTypes = {
+//   item: PropTypes.object.isRequired
+// };
 
 class NavList extends Component {
   constructor(props) {
@@ -96,7 +99,7 @@ class NavList extends Component {
     );
   }
 }
-NavList.PropTypes = {
+NavList.propTypes = {
   list: PropTypes.array.isRequired
 };
 

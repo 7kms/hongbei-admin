@@ -6,5 +6,9 @@ import { dataList } from '../mock/data';
 export const $get = (url, params) => {
   return new Promise((resolve, reject)=>{
     resolve({ result: dataList });
+    let flag = 'test';
+    if(flag < 0){
+      reject(params);
+    }
   })
 };
