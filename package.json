@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "rimraf dist && webpack-dev-server --config build/webpack-dev.config.js",
     "product": "rimraf dist && npm run build:product",
-    "build:product": "cross-env NODE_ENV=production webpack --config build/webpack-product.config.js --progress --color --colors --hide-modules"
+    "build:product": "cross-env NODE_ENV=production webpack --config build/webpack-product.config.js --progress --color --colors --hide-modules --display-chunks"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +23,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "cross-env": "^5.0.0",
     "css-loader": "^0.28.1",
+    "cssnano": "^3.10.0",
     "eslint": "^3.19.0",
     "eslint-loader": "^1.7.1",
     "eslint-plugin-react": "^7.0.1",
@@ -31,6 +32,7 @@
     "html-webpack-plugin": "^2.28.0",
     "less": "^2.7.2",
     "less-loader": "^4.0.3",
+    "optimize-css-assets-webpack-plugin": "^2.0.0",
     "postcss-loader": "^2.0.5",
     "react-hot-loader": "^3.0.0-beta.7",
     "rimraf": "^2.6.1",

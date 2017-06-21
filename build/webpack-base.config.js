@@ -1,4 +1,5 @@
 const { resolve } = require('path');
+var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 let isProduct = process.env.NODE_ENV === 'production';
@@ -34,8 +35,9 @@ module.exports = {
         '~util': resolve(__dirname, '../src/util')
       }
     },
-    stats: "errors-only",
+    stats: "normal",
     //控制要显示的 bundle 信息
+
     module: {
         rules: [
           {
@@ -52,7 +54,8 @@ module.exports = {
             {
               test: /\.css$/,
               use: isProduct ? ExtractTextPlugin.extract({
-                    use: [{
+                fallback: 'style-loader',
+                use: [{
                   loader: 'css-loader'
                 },{
                   loader: 'postcss-loader',
@@ -78,6 +81,7 @@ module.exports = {
             {
               test: /\.less$/,
               use: isProduct ? ExtractTextPlugin.extract({
+                fallback: 'style-loader',
                 use: [{
                   loader: 'css-loader',
                   options:{
@@ -117,8 +121,18 @@ module.exports = {
     },
 
     plugins: [
-        new ExtractTextPlugin('css/[name].[contenthash:6].css'),
+        new ExtractTextPlugin({
+          filename: 'css/[name].[contenthash:6].css'
+        }),
         // 单独提取入口依赖的css文件
+
+
+        new OptimizeCssAssetsPlugin({
+          // assetNameRegExp: /\.optimize\.css$/g,
+          cssProcessor: require('cssnano'),
+          cssProcessorOptions: { discardComments: {removeAll: true } },
+          canPrint: true
+        }),
 
         new HtmlWebpackPlugin({
           title: '烘焙后台管理',

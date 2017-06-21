@@ -16,6 +16,7 @@ module.exports = merge(baseConfig, {
     //「附加分块(additional chunk)」的文件名模板
   },
   devtool: false,
+  stats: 'verbose',
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: false
