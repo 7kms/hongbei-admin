@@ -1,4 +1,4 @@
-### moka react exercise
+### a react project
 
 
 

@@ -4,11 +4,11 @@
 export let dataList = [
   {
     department: '工程研发部门',
-    total: 100,
+    total: 800,
     jobList:[
       {
         jobName:'Mac开发工程师',
-        number: 9
+        number: 10
       },
       {
         jobName:'ios app 开发工程师',

@@ -1,32 +1,23 @@
-import React, { Component } from 'react';
-// import MainPage from './main/index';
-import { DatePicker, message } from 'antd';
+import React from 'react';
+import MainPage from 'bundle-loader?lazy!./main/index';
+import { connect } from 'react-redux'
+import LazyComponent from '~util/lazy.js';
+// import { DatePicker, message } from 'antd';
+import {
+    BrowserRouter as Router,
+    Route,
+    Redirect,
+    Switch
+} from 'react-router-dom';
 
-// export default class App extends Component{
-//   render() {
-//     return (
-//       <MainPage />
-//     );
-//   }
-// }
 
-export default class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      date: '',
-    };
-  }
-  handleChange(date) {
-    message.info('您选择的日期是: ' + date.toString());
-    this.setState({ date });
-  }
-  render() {
-    return (
-      <div style={{ width: 400, margin: '100px auto' }}>
-        <DatePicker onChange={value => this.handleChange(value)} />
-        <div style={{ marginTop: 20 }}>当前日期：{this.state.date.toString()}</div>
-      </div>
-    );
-  }
-}
+const App = () => (
+    <Router>
+        <Switch>
+            <Route exact path = "/" component = { LazyComponent(MainPage) } />
+            <Redirect to={{pathname: '/'}} />
+        </Switch>
+    </Router>
+);
+
+export default connect()(App);

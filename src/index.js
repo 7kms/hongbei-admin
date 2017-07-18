@@ -1,26 +1,31 @@
-import './assets/base.less';
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-import { AppContainer } from 'react-hot-loader';
-// AppContainer 是一个 HMR 必须的包裹(wrapper)组件
-
+import { createStore, applyMiddleware} from 'redux';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+import rootReducer from './reducers';
 import App from './pages/index';
+let middleWareArr = [thunk];
+
+const store = createStore(
+    rootReducer,
+    applyMiddleware(...middleWareArr)
+);
 
 const render = (Component) => {
     ReactDOM.render(
-        <AppContainer>
-            <Component />
-        </AppContainer>,
-        document.getElementById('root')
-    );
-};
+    <Provider store={store}>
+        <Component />
+    </Provider>
+    ,document.getElementById('root'));
+}
 
 render(App);
 
-// 模块热替换的 API
-if (module.hot) {
-    module.hot.accept('./pages/index', () => {
-        render(App)
-    });
+if(module.hot){
+    // Enable Webpack hot module replacement for reducers
+    module.hot.accept('./reducers', () => {
+      const nextRootReducer = require('./reducers').default
+      store.replaceReducer(nextRootReducer)
+    })
 }

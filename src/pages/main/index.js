@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom'; 
 import classNames from 'classnames/bind';
 import styles from '~less/mainpage.less';
 import NavTable from './NavTable';
@@ -31,4 +33,4 @@ class Main extends Component {
   }
 }
 
-export default Main;
+export default withRouter(connect()(Main));

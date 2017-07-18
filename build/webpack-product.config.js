@@ -4,7 +4,7 @@ let baseConfig = require('./webpack-base.config');
 const merge = require('webpack-merge');
 module.exports = merge(baseConfig, {
   output: {
-    path: resolve(__dirname, '../dist/'),
+    path: resolve(__dirname, '../__dist/'),
 
     publicPath: '/dist',
     // 对于热替换(HMR)是必须的，让 webpack 知道在哪里载入热更新的模块(chunk)
@@ -18,6 +18,8 @@ module.exports = merge(baseConfig, {
   devtool: false,
   stats: 'verbose',
   plugins: [
+    new webpack.HashedModuleIdsPlugin(),
+
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: false
     }),

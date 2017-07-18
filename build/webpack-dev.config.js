@@ -2,13 +2,14 @@ const { resolve } = require('path');
 const webpack = require('webpack');
 let baseConfig = require('./webpack-base.config');
 const merge = require('webpack-merge');
+let ipv4 = require('macaddress').networkInterfaces().en0.ipv4;
 module.exports = merge(baseConfig,{
     entry: {
       hmr: [
         'react-hot-loader/patch',
         // 开启 React 代码的模块热替换(HMR)
 
-        'webpack-dev-server/client?http://localhost:8080',
+        `webpack-dev-server/client?http://${ipv4}:8080`,
         // 为 webpack-dev-server 的环境打包代码
         // 然后连接到指定服务器域名与端口
 
@@ -29,7 +30,8 @@ module.exports = merge(baseConfig,{
         // 和上文 output 的“publicPath”值保持一致
 
         noInfo: true,
-
+        host: "0.0.0.0",
+        disableHostCheck: true,
         historyApiFallback: true
     },
 
@@ -43,5 +45,5 @@ module.exports = merge(baseConfig,{
         new webpack.optimize.CommonsChunkPlugin({
           names: ['hmr','vendor','manifest']
         })
-    ]
+      ]
 });
