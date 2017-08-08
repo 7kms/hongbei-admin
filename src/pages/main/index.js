@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'; 
 import classNames from 'classnames/bind';
 import styles from '~less/mainpage.less';
 import NavTable from './NavTable';
-import { $get } from '~util/index';
+// import { $get } from '~util/index';
 let cx = classNames.bind(styles);
 
+
+@withRouter
 class Main extends Component {
   constructor(props) {
     super(props);
@@ -15,11 +16,7 @@ class Main extends Component {
     };
   }
   componentDidMount() {
-    $get().then(data=>{
-      this.setState({
-        dataList: data.result
-      });
-    })
+   
   }
   render() {
     return (
@@ -33,4 +30,4 @@ class Main extends Component {
   }
 }
 
-export default withRouter(connect()(Main));
+export default Main;

@@ -1,3 +1,1 @@
-export default {
-    serverUrl: 'http://localhost:3000'
-}
+export const serverUrl =  process.env.NODE_ENV != 'production' ? '/api': 'http://localhost:4000'

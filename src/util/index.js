@@ -1,14 +1,4 @@
 /**
  * Created by float.. on 2017/5/22.
  */
-import { dataList } from '../mock/data';
-
-export const $get = (url, params) => {
-  return new Promise((resolve, reject)=>{
-    resolve({ result: dataList });
-    let flag = 'test';
-    if(flag < 0){
-      reject(params);
-    }
-  })
-};
+export {$get,$post,$put,$delete} from './api'

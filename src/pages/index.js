@@ -1,8 +1,7 @@
 import React from 'react';
 import MainPage from 'bundle-loader?lazy!./main/index';
-import { connect } from 'react-redux'
+import Upload from 'bundle-loader?lazy!./upload/index';
 import LazyComponent from '~util/lazy.js';
-// import { DatePicker, message } from 'antd';
 import {
     BrowserRouter as Router,
     Route,
@@ -15,9 +14,10 @@ const App = () => (
     <Router>
         <Switch>
             <Route exact path = "/" component = { LazyComponent(MainPage) } />
+            <Route exact path = "/upload" component = { LazyComponent(Upload) } />
             <Redirect to={{pathname: '/'}} />
         </Switch>
     </Router>
 );
 
-export default connect()(App);
+export default App;

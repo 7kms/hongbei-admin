@@ -32,7 +32,13 @@ module.exports = merge(baseConfig,{
         noInfo: true,
         host: "0.0.0.0",
         disableHostCheck: true,
-        historyApiFallback: true
+        historyApiFallback: true,
+        proxy: {
+          "/api": {
+            target: "http://localhost:4000",
+            pathRewrite: {"^/api" : ""}
+          }
+        }
     },
 
     plugins: [

@@ -1,34 +1,53 @@
-import appConfig from './config.js';
+import { serverUrl } from './config.js';
+import { getAppRouter } from '~util/index'
 
-let baseFeachConfig = {
+let baseFetchConfig = {
     credentials: 'include'
 };
 
 function checkStatus(response) {
-  if (response.status >= 200 && response.status < 300) {
-    return response.json()
-  } else {
-    var error = new Error(response.statusText)
-    error.response = response
-    throw error
-  }
+    if (response.status >= 200 && response.status < 300) {
+        return Promise.resolve(response.json())
+    } else {
+        return response.json().then((err)=>{
+            if(err.err_code == '403001'){
+                let router = getAppRouter();
+                if(router){
+                    router.history.push('/login',{from: router.history.location.pathname})
+                }else{
+                    location.href = '/login?from=' + location.pathname;
+                }
+            }else{
+                return Promise.reject(err)
+            }
+        })
+    }
 }
 
-export const $get = (url, paramObj)=>{
-    url = `${appConfig.serverUrl}/${url}?params=${encodeURIComponent(JSON.stringify(paramObj))}`;
-    return fetch(url, baseFeachConfig)
+let getConfig = (method, paramObj = {})=>{
+    return Object.assign({
+        method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(paramObj)
+    },baseFetchConfig)
+}
+
+export const $get = (url, paramObj = {})=>{
+    url = `${serverUrl}${url}?params=${JSON.stringify(paramObj)}`;
+    return fetch(url, baseFetchConfig)
             .then(checkStatus)
 }
 
-export const $post = (url, paramObj) => {
-    url = `${appConfig.serverUrl}/${url}`;
-    paramObj = {params:paramObj};
-    let config = Object.assign({
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: encodeURIComponent(JSON.stringify(paramObj))
-        },baseFeachConfig);
+export const $post = (url, paramObj = {}) => {
+    url = serverUrl + url
+    let config = getConfig('POST',paramObj);
+    return fetch(url,config).then(checkStatus)
+}
+
+export const $put = (url, paramObj = {}) => {
+    url = serverUrl + url
+    let config = getConfig('PUT',paramObj);
     return fetch(url,config).then(checkStatus)
 }
