@@ -37,8 +37,9 @@ module.exports = {
         alias: {
             'react': resolve(__dirname, '../node_modules/react'),
             'react-dom': resolve(__dirname, '../node_modules/react-dom'),
-            '~less': resolve(__dirname, '../src/assets'),
-            '~util': resolve(__dirname, '../src/util')
+            '~less': resolve(__dirname, '../src/assets/less'),
+            '~util': resolve(__dirname, '../src/util'),
+            '~components': resolve(__dirname, '../src/components')
         }
     },
     stats: "normal",
