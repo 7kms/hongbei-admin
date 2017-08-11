@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-// import { withRouter } from 'react-router-dom'; 
-import { observer } from 'mobx-react';
+import { withRouter } from 'react-router-dom'; 
+import { observer,inject } from 'mobx-react';
 import { observable } from 'mobx';
 import classNames from 'classnames/bind';
 import styles from '~less/login.less';
@@ -10,10 +10,14 @@ import { $post } from '~util/index';
 let cx = classNames.bind(styles);
 const FormItem = Form.Item;
 
+@withRouter
+@inject('store')
 @observer
 class NormalLoginForm extends Component {
   static propTypes = {
-    form: PropTypes.object.isRequired
+    form: PropTypes.object.isRequired,
+    store: PropTypes.object.isRequired,
+    history: PropTypes.object.isRequired
   }
   @observable isLoading = false;
 //   constructor(props){
@@ -24,16 +28,16 @@ class NormalLoginForm extends Component {
     e.preventDefault();
     if(this.isLoading)return false;
     this.props.form.validateFields(async (err, values) => {
-        console.log(err)
         if (!err) {
             this.isLoading = true;
             try {
-                let res = await $post('/admin/login', values)
-                console.log(res)
+                let res = await $post('/admin/login',values)
+                this.props.store.User.setData(res.data.user)
+                this.props.history.replace('/')
             }catch(e){
                 console.log(e)
+                this.isLoading = false
             }
-            this.isLoading = false
         }
     });
   }

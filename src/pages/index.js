@@ -18,9 +18,9 @@ import {
 const App = () => (
     <Router>
         <Switch>
-            <Route exact path = "/" component = { LazyComponent(MainPage) } />
             <Route exact path = "/upload" component = { LazyComponent(Upload) } />
             <Route exact path = "/login" component = { LazyComponent(Login) } />
+            <Route path = "/" component = { LazyComponent(MainPage) } />
             <Redirect to={{pathname: '/'}} />
         </Switch>
     </Router>
