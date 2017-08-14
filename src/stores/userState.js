@@ -12,17 +12,6 @@ class UserState {
     this.info = {}
   }
 
-  @action async login(params){
-    try {
-      let res =  await $get('/admin/login',params)
-      console.log(res);
-      this.setData(res.data.user)
-     }catch(err){
-       console.log(err)
-     }
-     return this.info;
-  }
-
   @action async getInfo(){
     try {
      let user =  await $get('/admin/profile')

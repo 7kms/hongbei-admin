@@ -39,6 +39,7 @@ module.exports = {
             'react-dom': resolve(__dirname, '../node_modules/react-dom'),
             '~less': resolve(__dirname, '../src/assets/less'),
             '~util': resolve(__dirname, '../src/util'),
+            '~data': resolve(__dirname, '../src/data'),
             '~components': resolve(__dirname, '../src/components')
         }
     },

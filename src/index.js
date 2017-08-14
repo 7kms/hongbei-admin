@@ -1,7 +1,7 @@
 import '~less/base.less';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Provider} from 'mobx-react';
+import { Provider } from 'mobx-react';
 import App from './pages/index';
 import DevTools from "mobx-react-devtools";
 import Store from './stores'
@@ -9,10 +9,14 @@ import Store from './stores'
 const render = (Component) => {
     ReactDOM.render(
         <Provider store={Store}>
-            <div>
-                {process.env.NODE_ENV != 'production' ? <DevTools/> : null}
+            {process.env.NODE_ENV != 'production' ?
+                <div style={{height:'100%'}}>
+                    <DevTools/>
+                    <Component />
+                </div>
+              : 
                 <Component />
-            </div>
+             }
         </Provider>
     ,document.getElementById('root'));
 }

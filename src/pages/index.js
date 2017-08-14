@@ -1,7 +1,6 @@
 import React from 'react';
 import { observer,inject } from 'mobx-react';
 import MainPage from 'bundle-loader?lazy!./main/index';
-import Upload from 'bundle-loader?lazy!./upload/index';
 import Login from 'bundle-loader?lazy!./entrance/index';
 import LazyComponent from '~util/lazy.js';
 import PropTypes from 'prop-types';
@@ -18,9 +17,8 @@ import {
 const App = () => (
     <Router>
         <Switch>
-            <Route exact path = "/upload" component = { LazyComponent(Upload) } />
             <Route exact path = "/login" component = { LazyComponent(Login) } />
-            <Route path = "/" component = { LazyComponent(MainPage) } />
+            <Route path = "/" component = { LazyComponent(MainPage) }/>
             <Redirect to={{pathname: '/'}} />
         </Switch>
     </Router>
@@ -43,13 +41,8 @@ class AuthorApp extends React.Component{
     
     render(){
         const { hasChecked } = this.store;
-        return(
-          <div>
-              {
-                hasChecked ? <App/> : <Spin className="page-loading" size="large"/>
-              }
-          </div>
-        );
+        let dom =  hasChecked ? <App/> : <Spin className="page-loading" size="large"/>
+        return dom;
     }
 }
 
