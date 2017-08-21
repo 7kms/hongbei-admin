@@ -7,7 +7,6 @@ import {inject, observer} from 'mobx-react';
 import PropTypes from 'prop-types';
 import { Layout} from 'antd';
 import LazyComponent from '~util/lazy.js';
-import Stores from 'bundle-loader?lazy!../stores/index'
 import Goods from 'bundle-loader?lazy!../goods/index'
 import Orders from 'bundle-loader?lazy!../orders/index'
 import Courses from 'bundle-loader?lazy!../courses/index'
@@ -16,7 +15,6 @@ const {  Content } = Layout;
 
 let cx = classNames.bind(styles);
 
-let pageStore = LazyComponent(Stores);
 let pageGoods = LazyComponent(Goods);
 let pageOrders = LazyComponent(Orders);
 let pageCourses = LazyComponent(Courses);
@@ -37,7 +35,6 @@ class MainContent extends Component {
     return (
         <Content className={cx('content')}>
            <Switch>
-              <Route exact path = "/store" component = { pageStore } />
               <Route path = "/goods" component = { pageGoods } />
               <Route path = "/orders" component = { pageOrders } />
               <Route path = "/courses" component = { pageCourses } />
