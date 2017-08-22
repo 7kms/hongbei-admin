@@ -14,13 +14,10 @@ const uploadAction = `${serverUrl}/admin/upload`;
 @inject('store')
 @observer
 class GoodsAdd extends React.PureComponent{
-    @observable info = {
-        onSale: false,
-        cover: ''
-    }
     constructor(props){
         super(props)
         this.uploadCover = this.uploadCover.bind(this)
+        this.uploadPictures = this.uploadPictures.bind(this)
     }
     static propTypes = {
         form: PropTypes.object.isRequired,
@@ -31,10 +28,22 @@ class GoodsAdd extends React.PureComponent{
 
     }
     uploadCover(info){
+        const { getFieldValue } = this.props.form;
         if (info.file.status === 'done') {
-            console.log(info)
-            return info.file.response.path
+                return info.file.response.path
+          }else{
+              return getFieldValue('cover')
           }
+    }
+    uploadPictures(info){
+        const { getFieldValue } = this.props.form;
+        if (info.file.status === 'done') {
+            return info.fileList.map(file=>{
+                return file.response.path
+            })
+        }else{
+            getFieldValue('pictures')
+        }
     }
     confirm(values){
         console.log(values)
@@ -120,17 +129,37 @@ class GoodsAdd extends React.PureComponent{
                <Row>
                 <div className="dfn-label">商品封面(建议300*300的jpg)</div>
                 <div className="goods-cover">
-                    {getFieldValue('cover') ? <img src={serverUrl + getFieldValue('cover') }/>: null}
+                    {getFieldValue('cover') ? <div className="goods-pic"><img src={serverUrl + getFieldValue('cover') }/></div>: null}
                 </div>
                 <FormItem>
                     {getFieldDecorator('cover', {
                         getValueFromEvent: this.uploadCover,
                         rules: [{ required: true, message: '请上传商品封面!' }]
                     })(
-                        <Upload name="file" action={uploadAction} showUploadList={false}>
-                            <Button>
-                                <Icon type="upload" /> 上传封面
-                            </Button>
+                        <Upload name="file" action={uploadAction} showUploadList={false} listType="picture-card">
+                            <div>
+                                <Icon type="plus" />
+                                <div>上传封面</div>
+                            </div>
+                        </Upload>
+                    )}
+                 </FormItem>
+               </Row>
+               <Row>
+                <div className="dfn-label">详情照片</div>
+                <div className="goods-cover">
+                    {getFieldValue('pictures') ? getFieldValue('pictures').map((url,index)=> <div key={index} className="goods-pic"><img src={serverUrl + url}/></div>) : null}
+                </div>
+                <FormItem>
+                    {getFieldDecorator('pictures', {
+                        getValueFromEvent: this.uploadPictures,
+                        rules: [{ required: true, message: '请上传详情照片!' }]
+                    })(
+                        <Upload name="file" action={uploadAction} listType="picture-card" showUploadList={{showPreviewIcon: false, showRemoveIcon: true}} ref={(node)=>this.uploadPicNode = node}>
+                            <div>
+                                <Icon type="plus" />
+                                <div>上传照片</div>
+                            </div>
                         </Upload>
                     )}
                  </FormItem>
@@ -149,11 +178,10 @@ class GoodsAdd extends React.PureComponent{
                     <Col span={7}>
                         <div className="dfn-label">是否上架</div>
                         <FormItem>
-                        {getFieldDecorator('onSale', { valuePropName: 'checked' })(
+                        {getFieldDecorator('onSale', { valuePropName: 'checked' ,initialValue: false})(
                             <Switch 
-                            checkedChildren={<Icon type="check" />} 
-                            unCheckedChildren={<Icon type="cross" />}
-                            defaultChecked={this.info.onSale}/>
+                                checkedChildren={<Icon type="check" />} 
+                                unCheckedChildren={<Icon type="cross" />}/>
                         )}
                         </FormItem>
                     </Col>
