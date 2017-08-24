@@ -4,7 +4,11 @@ import { getAppRouter } from '~util/index'
 let baseFetchConfig = {
     credentials: 'include'
 };
-
+let generateFn = (method)=>(url, paramObj = {}) => {
+    url = serverUrl + url
+    let config = getConfig(method,paramObj);
+    return fetch(url,config).then(checkStatus)
+}
 function checkStatus(response) {
     if (response.status >= 200 && response.status < 300) {
         return Promise.resolve(response.json())
@@ -51,3 +55,6 @@ export const $put = (url, paramObj = {}) => {
     let config = getConfig('PUT',paramObj);
     return fetch(url,config).then(checkStatus)
 }
+
+export const $delete = generateFn('DELETE')
+

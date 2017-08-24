@@ -1,14 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {inject, observer} from 'mobx-react';
-import { observable } from 'mobx';
+// import { observable } from 'mobx';
 import {$post} from '~util/index'
 import {serverUrl} from '~util/config'
 // import classNames from 'classnames/bind';
 // import styles from '~less/goodsadd.less';
-import { Row, Col, Form, Icon, Input, Button, Switch, Upload, Modal } from 'antd';
+import { Row, Col, Form, Icon, Input, Button, Switch, Upload, Modal,Radio } from 'antd';
 // let cx = classNames.bind(styles);
 const FormItem = Form.Item;
+const RadioGroup = Radio.Group;
 const uploadAction = `${serverUrl}/admin/upload`;
 
 @inject('store')
@@ -171,6 +172,18 @@ class GoodsAdd extends React.PureComponent{
                             rules: [{ required: true, message: '请填写商品规格!' }],
                         })(
                             <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="text" placeholder="商品规格(多种规格用空格隔开;如: 半径3cm  半径5cm)" />
+                        )}
+                    </FormItem>
+               </Row>
+               <Row>
+                     <div className="dfn-label">商品分类</div>
+                     <FormItem>
+                        {getFieldDecorator('radio-group')(
+                            <RadioGroup>
+                                <Radio value="a">item 1</Radio>
+                                <Radio value="b">item 2</Radio>
+                                <Radio value="c">item 3</Radio>
+                            </RadioGroup>
                         )}
                     </FormItem>
                </Row>

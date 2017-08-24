@@ -17,6 +17,11 @@ const menu = [
     ]
   },
   {
+    title:'分类管理',
+    icon:'appstore',
+    key: '/category',
+  },
+  {
     title:'订单管理',
     icon:'appstore',
     key: '/orders',

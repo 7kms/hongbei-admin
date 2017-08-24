@@ -24,7 +24,6 @@ const render = (Component) => {
 render(App);
 
 if(module.hot){
-    // Enable Webpack hot module replacement for reducers
     module.hot.accept(() => {
         const App = require('./pages/index').default
         render(App)
