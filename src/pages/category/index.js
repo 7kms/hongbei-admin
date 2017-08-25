@@ -138,49 +138,48 @@ class Page extends PureComponent{
                     </Col>
                 </Row>
                 <Table style={{marginTop:50}} dataSource={Array.prototype.slice.call(list,0)} pagination={false}>
-                <Column
-                    title="名称"
-                    key="name"
-                    render={(text, record) => (
-                        <div>
-                            { record.name }
-                        </div>
-                    )}
-                />
-                <Column
-                    title="创建时间"
-                    key="createAt"
-                    render={(text, record) => (
-                        <div>
-                            { dateFormat(record.createdAt) }
-                        </div>
-                    )}
-                />
-                <Column
-                    title="修改时间"
-                    key="updatedAt"
-                    render={(text, record) => (
-                        <div>
-                            { dateFormat(record.updatedAt) }
-                        </div>
-                    )}
+                    <Column
+                        title="名称"
+                        key="name"
+                        render={(text, record) => (
+                            <div>
+                                { record.name }
+                            </div>
+                        )}
+                    />
+                    <Column
+                        title="创建时间"
+                        key="createAt"
+                        render={(text, record) => (
+                            <div>
+                                { dateFormat(record.createdAt) }
+                            </div>
+                        )}
+                    />
+                    <Column
+                        title="修改时间"
+                        key="updatedAt"
+                        render={(text, record) => (
+                            <div>
+                                { dateFormat(record.updatedAt) }
+                            </div>
+                        )}
 
-                />
-                <Column
-                    title="Action"
-                    key="action"
-                    render={(text,record,index) => (
-                        <div>
-                            <Button onClick={()=>this.changeCategory(index,record)}>修改</Button>
-                            <Button type="danger" onClick={()=>this.removeCategory(record)}>删除</Button>
-                        </div>
-                    )}
-                />
-            </Table>
+                    />
+                    <Column
+                        title="Action"
+                        key="action"
+                        render={(text,record,index) => (
+                            <div>
+                                <Button onClick={()=>this.changeCategory(index,record)}>修改</Button>
+                                <Button type="danger" onClick={()=>this.removeCategory(record)}>删除</Button>
+                            </div>
+                        )}
+                    />
+                </Table>
 
                 <Modal
-                    title="20px to Top"
-                    style={{ top: 20 }}
+                    title="修改分类名称"
                     visible={this.showModal}
                     onOk={() => this.closeModal(true)}
                     onCancel={() => this.closeModal(false)}

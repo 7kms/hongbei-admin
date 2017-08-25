@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {inject, observer} from 'mobx-react';
-// import { observable } from 'mobx';
-import {$post} from '~util/index'
+import { observer } from 'mobx-react';
+import { observable } from 'mobx';
+import {$post,$get} from '~util/index'
 import {serverUrl} from '~util/config'
 // import classNames from 'classnames/bind';
 // import styles from '~less/goodsadd.less';
@@ -12,7 +12,7 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const uploadAction = `${serverUrl}/admin/upload`;
 
-@inject('store')
+// @inject('store')
 @observer
 class GoodsAdd extends React.PureComponent{
     constructor(props){
@@ -22,11 +22,16 @@ class GoodsAdd extends React.PureComponent{
     }
     static propTypes = {
         form: PropTypes.object.isRequired,
-        store: PropTypes.object.isRequired,
+        // store: PropTypes.object.isRequired,
         history: PropTypes.object.isRequired
     }
+    @observable categoryList = [];
+    async initialData(){
+       let res =  await $get('/category');
+       this.categoryList = res.data;
+    }
     componentWillMount(){
-
+        this.initialData()
     }
     uploadCover(info){
         const { getFieldValue } = this.props.form;
@@ -57,15 +62,24 @@ class GoodsAdd extends React.PureComponent{
         });
     }
     async postData(values){
+        this.isLoading = true;
         try {
-            this.isLoading = true;
-            let res = await $post('/cakes/insert',values) 
-            this.props.store.User.setData(res.data.user)
-            this.props.history.replace('/')
-        }catch(e){
-            console.log(e)
-            this.isLoading = false
+            await $post('/cakes/insert',values) 
+            this.props.form.resetFields();
+            Modal.success({
+                title:'提示',
+                content: '添加成功',
+                onOk:()=>{
+                    window.location.reload()
+                }
+            })
+        }catch(err){
+            Modal.error({
+                title:'提示',
+                content: err.msg
+            })
         }
+        this.isLoading = false;
     }
     handleSubmit = (e) => {
         e.preventDefault();
@@ -178,11 +192,14 @@ class GoodsAdd extends React.PureComponent{
                <Row>
                      <div className="dfn-label">商品分类</div>
                      <FormItem>
-                        {getFieldDecorator('radio-group')(
+                        {getFieldDecorator('category',{
+                            
+                            rules: [{ required: true, message: '请选择商品分类!' }]
+                        })(
                             <RadioGroup>
-                                <Radio value="a">item 1</Radio>
-                                <Radio value="b">item 2</Radio>
-                                <Radio value="c">item 3</Radio>
+                                {
+                                    this.categoryList.map(item=><Radio value={item._id} key={item._id}>{item.name}</Radio>)
+                                }
                             </RadioGroup>
                         )}
                     </FormItem>
