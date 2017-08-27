@@ -1,5 +1,5 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { observer, inject } from 'mobx-react';
 import { observable } from 'mobx';
 import { $get, dateFormat} from '~util/index';
@@ -12,6 +12,10 @@ const { Column } = Table;
 @inject('store')
 @observer
 class GoodsList extends React.PureComponent{
+
+    static propTypes = {
+        history: PropTypes.object.isRequired
+    }
     @observable list = [];
     async getList(){
         try{
@@ -20,6 +24,9 @@ class GoodsList extends React.PureComponent{
         }catch(err){
             message.error(err.msg, 5000)
         }
+    }
+    updateCategory({_id}){
+        this.props.history.push(`/goods/${_id}`)
     }
     componentWillMount(){
         this.getList()
@@ -62,10 +69,9 @@ class GoodsList extends React.PureComponent{
                     <Column
                         title="Action"
                         key="action"
-                        render={(text,record,index) => (
+                        render={(text,record) => (
                             <div>
-                                <Button onClick={()=>this.changeCategory(index,record)}>修改</Button>
-                                <Button type="danger" onClick={()=>this.removeCategory(record)}>删除</Button>
+                                <Button onClick={()=>this.updateCategory(record)}>修改</Button>
                             </div>
                         )}
                     />
