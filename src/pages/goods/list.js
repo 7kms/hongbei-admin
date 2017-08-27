@@ -4,7 +4,7 @@ import { observer, inject } from 'mobx-react';
 import { observable } from 'mobx';
 import { $get, dateFormat} from '~util/index';
 
-import { Table, Button, message} from 'antd';
+import { Table, Button, message, Row, Pagination } from 'antd';
 
 const { Column } = Table;
 
@@ -12,15 +12,35 @@ const { Column } = Table;
 @inject('store')
 @observer
 class GoodsList extends React.PureComponent{
+    constructor(props){
+        super(props);
+        this.onShowSizeChange = this.onShowSizeChange.bind(this)
+    }
 
     static propTypes = {
         history: PropTypes.object.isRequired
     }
+    
     @observable list = [];
+    @observable total = 0;
+
+    queryInfo = {
+        limit: 10,
+        skip: 0
+    }
+
+    onShowSizeChange(current, pageSize){
+        console.log(current, pageSize)
+        this.queryInfo.limit = pageSize;
+        this.queryInfo.skip = (current-1) * pageSize;
+        this.getList();
+    }
+
     async getList(){
         try{
-            let res = await $get('/cakes');
+            let res = await $get('/cakes',{...this.queryInfo});
             this.list = res.data;
+            this.total = res.total;
         }catch(err){
             message.error(err.msg, 5000)
         }
@@ -36,23 +56,37 @@ class GoodsList extends React.PureComponent{
         let list = this.list
         return(
             <div>
-                <div>goods list</div>
+                <Row>商品列表</Row>
                 <Table style={{marginTop:50}} dataSource={Array.prototype.slice.call(list,0)} pagination={false} rowKey={record => record._id}>
                     <Column
-                        title="名称"
-                        key="name"
-                        render={(text, record) => (
+                        title="序号"
+                        render={(text, record, index) => (
                             <div>
-                                { record.name }
+                                { index + 1}
                             </div>
                         )}
                     />
                     <Column
-                        title="创建时间"
-                        key="createAt"
+                        title="名称"
+                        dataIndex="name"
+                    />
+                    <Column
+                        title="分类"
+                        dataIndex="category.name"
+                    />
+                    <Column
+                        title="库存"
+                        dataIndex="store"
+                    />
+                    <Column
+                        title="单价"
+                        dataIndex="price"
+                    />
+                    <Column
+                        title="是否上架"
                         render={(text, record) => (
                             <div>
-                                { dateFormat(record.createdAt) }
+                                { record.onSale ? '是' : '否'}
                             </div>
                         )}
                     />
@@ -64,7 +98,6 @@ class GoodsList extends React.PureComponent{
                                 { dateFormat(record.updatedAt) }
                             </div>
                         )}
-
                     />
                     <Column
                         title="Action"
@@ -76,6 +109,7 @@ class GoodsList extends React.PureComponent{
                         )}
                     />
                 </Table>
+                <Pagination showSizeChanger onShowSizeChange={this.onShowSizeChange} defaultCurrent={1} total={this.total} />
             </div>
         )
     }

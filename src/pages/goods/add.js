@@ -70,7 +70,7 @@ class GoodsAdd extends React.PureComponent{
                 title:'提示',
                 content: '添加成功',
                 onOk:()=>{
-                    window.location.reload()
+                    this.props.history.replace('/goods/list')
                 }
             })
         }catch(err){

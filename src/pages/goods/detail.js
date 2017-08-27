@@ -130,6 +130,7 @@ class GoodsDetail extends React.PureComponent{
                 title:'提示',
                 content: '修改成功',
                 onOk:()=>{
+                    this.props.history.replace('/goods/list')
                     // window.location.reload()
                 }
             })
