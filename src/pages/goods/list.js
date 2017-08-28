@@ -53,7 +53,8 @@ class GoodsList extends React.PureComponent{
     }
     render(){
         console.log('render-------goods-list')
-        let list = this.list
+        let list = this.list;
+        let {skip} = this.queryInfo
         return(
             <div>
                 <Row>商品列表</Row>
@@ -62,7 +63,7 @@ class GoodsList extends React.PureComponent{
                         title="序号"
                         render={(text, record, index) => (
                             <div>
-                                { index + 1}
+                                { index + 1 + skip}
                             </div>
                         )}
                     />
@@ -109,7 +110,7 @@ class GoodsList extends React.PureComponent{
                         )}
                     />
                 </Table>
-                <Pagination showSizeChanger onShowSizeChange={this.onShowSizeChange} defaultCurrent={1} total={this.total} />
+                <Pagination showSizeChanger onChange={this.onShowSizeChange} onShowSizeChange={this.onShowSizeChange} defaultCurrent={1} total={this.total} />
             </div>
         )
     }
