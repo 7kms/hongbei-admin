@@ -11,6 +11,7 @@ import Goods from 'bundle-loader?lazy!../goods/index'
 import Orders from 'bundle-loader?lazy!../orders/index'
 import Courses from 'bundle-loader?lazy!../courses/index'
 import Category from 'bundle-loader?lazy!../category/index'
+import Users from 'bundle-loader?lazy!../users/index'
 
 const {  Content } = Layout;
 
@@ -20,6 +21,7 @@ let pageGoods = LazyComponent(Goods);
 let pageOrders = LazyComponent(Orders);
 let pageCourses = LazyComponent(Courses);
 let pageCategory = LazyComponent(Category);
+let pageUser = LazyComponent(Users);
 
 
 @withRouter
@@ -40,7 +42,8 @@ class MainContent extends Component {
               <Route path = "/goods" component = { pageGoods } />
               <Route path = "/orders" component = { pageOrders } />
               <Route path = "/courses" component = { pageCourses } />
-              <Route path = "/category" component = { pageCategory } />
+              <Route path = "/categories" component = { pageCategory } />
+              <Route path = "/users" component = { pageUser } />
               <Redirect to="/" /> 
            </Switch>
         </Content>

@@ -2,7 +2,12 @@ const { resolve } = require('path');
 const webpack = require('webpack');
 let baseConfig = require('./webpack-base.config');
 const merge = require('webpack-merge');
-let ipv4 = require('macaddress').networkInterfaces().en0.ipv4;
+let ipv4 ;
+try{
+  ipv4 = require('macaddress').networkInterfaces().en0.ipv4
+}catch(e){
+  ipv4 = require('macaddress').networkInterfaces().eth1.ipv4
+}
 module.exports = merge(baseConfig,{
     entry: {
       hmr: [
