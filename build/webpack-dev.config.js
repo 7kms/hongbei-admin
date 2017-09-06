@@ -2,26 +2,26 @@ const { resolve } = require('path');
 const webpack = require('webpack');
 let baseConfig = require('./webpack-base.config');
 const merge = require('webpack-merge');
-let ipv4 ;
-try{
-  ipv4 = require('macaddress').networkInterfaces().en0.ipv4
-}catch(e){
-  ipv4 = require('macaddress').networkInterfaces().eth1.ipv4
-}
+// let ipv4 ;
+// try{
+//   ipv4 = require('macaddress').networkInterfaces().en0.ipv4
+// }catch(e){
+//   ipv4 = require('macaddress').networkInterfaces().eth1.ipv4
+// }
 module.exports = merge(baseConfig,{
     entry: {
-      hmr: [
-        'react-hot-loader/patch',
-        // 开启 React 代码的模块热替换(HMR)
+      // hmr: [
+      //   'react-hot-loader/patch',
+      //   // 开启 React 代码的模块热替换(HMR)
 
-        `webpack-dev-server/client?http://${ipv4}:8080`,
-        // 为 webpack-dev-server 的环境打包代码
-        // 然后连接到指定服务器域名与端口
+      //   `webpack-dev-server/client?http://${ipv4}:8080`,
+      //   // 为 webpack-dev-server 的环境打包代码
+      //   // 然后连接到指定服务器域名与端口
 
-        'webpack/hot/only-dev-server',
-        // 为热替换(HMR)打包好代码
-        // only- 意味着只有成功更新运行代码才会执行热替换(HMR)
-      ]
+      //   'webpack/hot/only-dev-server',
+      //   // 为热替换(HMR)打包好代码
+      //   // only- 意味着只有成功更新运行代码才会执行热替换(HMR)
+      // ]
     },
     devtool: '#cheap-module-source-map',
     devServer: {
@@ -53,8 +53,11 @@ module.exports = merge(baseConfig,{
         new webpack.NamedModulesPlugin(),
         // 当模块热替换(HMR)时在浏览器控制台输出对用户更友好的模块名字信息
 
+        // new webpack.optimize.CommonsChunkPlugin({
+        //   names: ['hmr','vendor','manifest']
+        // })
         new webpack.optimize.CommonsChunkPlugin({
-          names: ['hmr','vendor','manifest']
+          names: ['vendor','manifest']
         })
       ]
 });
