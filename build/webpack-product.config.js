@@ -6,7 +6,7 @@ module.exports = merge(baseConfig, {
   output: {
     path: resolve(__dirname, '../__dist/'),
 
-    publicPath: './',
+    publicPath: '/',
     // 对于热替换(HMR)是必须的，让 webpack 知道在哪里载入热更新的模块(chunk)
 
     filename: 'js/[name].[chunkhash:6].js',
