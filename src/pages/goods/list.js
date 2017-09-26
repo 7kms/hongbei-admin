@@ -121,6 +121,14 @@ class GoodsList extends React.PureComponent{
                         dataIndex="sales"
                     />
                     <Column
+                        title="首页展示"
+                        render={(text, record) => (
+                            <div>
+                                { record.onMainPage ? '是' : '否'}
+                            </div>
+                        )}
+                    />
+                    <Column
                         title="是否上架"
                         render={(text, record) => (
                             <div>
@@ -177,6 +185,16 @@ class TableFilter extends React.PureComponent{
                 </Col>
                 <Col span={2}>
                     <Select className="select-block" defaultValue="-1"  onChange={(val)=>onFilterChange('onSale',val)}>
+                        <Option value="-1">不限</Option>
+                        <Option value="1">是</Option>
+                        <Option value="0">否</Option>
+                    </Select>
+                </Col>
+                <Col span={2} className="text-right">
+                   <span>是否上首页</span>
+                </Col>
+                <Col span={2}>
+                    <Select className="select-block" defaultValue="-1"  onChange={(val)=>onFilterChange('onMainPage',val)}>
                         <Option value="-1">不限</Option>
                         <Option value="1">是</Option>
                         <Option value="0">否</Option>

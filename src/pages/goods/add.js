@@ -206,6 +206,18 @@ class GoodsAdd extends React.PureComponent{
                </Row>
                <Row type="flex" justify="space-between">
                     <Col span={7}>
+                        <div className="dfn-label">是否展示在首页</div>
+                        <FormItem>
+                        {getFieldDecorator('onMainPage', { valuePropName: 'checked' ,initialValue: false})(
+                            <Switch 
+                                checkedChildren={<Icon type="check" />} 
+                                unCheckedChildren={<Icon type="cross" />}/>
+                        )}
+                        </FormItem>
+                    </Col>
+                </Row>
+               <Row type="flex" justify="space-between">
+                    <Col span={7}>
                         <div className="dfn-label">是否上架</div>
                         <FormItem>
                         {getFieldDecorator('onSale', { valuePropName: 'checked' ,initialValue: false})(
