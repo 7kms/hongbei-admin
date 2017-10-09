@@ -4,8 +4,10 @@ import {observer} from 'mobx-react';
 import LazyComponent from '~util/lazy.js';
 import PropTypes from 'prop-types';
 import PageList from 'bundle-loader?lazy!./list';
+import PageFeedback from 'bundle-loader?lazy!./feedback';
 
 let List = LazyComponent(PageList);
+let Feedback = LazyComponent(PageFeedback);
 
 @observer
 class UsersPage extends PureComponent{
@@ -20,6 +22,7 @@ class UsersPage extends PureComponent{
         return (
             <Switch>
                 <Route exact path={`${match.url}/list`} component={List}/>
+                <Route exact path={`${match.url}/feedback`} component={Feedback}/>
                 <Redirect to={`${match.url}/list`}/>
             </Switch>
         )

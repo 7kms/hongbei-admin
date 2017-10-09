@@ -48,10 +48,15 @@ const menu = [
     icon:'appstore',
     key: 'users',
     sub:[
+      // {
+      //   title:'用户列表',
+      //   icon:'bars',
+      //   key: '/users/list',
+      // },
       {
-        title:'用户列表',
+        title:'反馈',
         icon:'bars',
-        key: '/users/list',
+        key: '/users/feedback',
       }
     ]
   }
