@@ -19,7 +19,7 @@ class Page extends PureComponent{
         return (
             <Switch>
                 <Route exact path={`${match.url}`} component={List}/>
-                <Route  path={`${match.url}/:item`} component={Detail}/>
+                <Route  path={`${match.url}/:_id`} component={Detail}/>
                 <Redirect to={`${match.url}`}/>
             </Switch>
         )
