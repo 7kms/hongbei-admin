@@ -39,7 +39,7 @@ const menu = [
       {
         title:'添加课程',
         icon:'plus',
-        key: '/course/add',
+        key: '/courses/add',
       }
     ]
   },

@@ -120,7 +120,7 @@ class CourseList extends React.PureComponent{
                         key="action"
                         render={(text,record) => (
                             <div>
-                                <Button onClick={()=>this.goDetail(record)}>详情</Button>
+                                <Button onClick={()=>this.goDetail(record)}>修改</Button>
                             </div>
                         )}
                     />

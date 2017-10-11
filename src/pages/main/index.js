@@ -23,7 +23,7 @@ class Main extends Component {
           <Top/> 
           <Content></Content>
           <Footer className={cx('footer')}>
-            Ant Design ©2016 Created by Ant UED
+            烘焙小程序 ©2017 Created by LT
           </Footer>
         </Layout>
       </Layout>
