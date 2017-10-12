@@ -80,8 +80,6 @@ class Paragraph extends React.PureComponent {
         );
     }
 }
-
-// @inject('store')
 @observer
 export default class CourseAdd extends React.PureComponent{
     constructor(props){
