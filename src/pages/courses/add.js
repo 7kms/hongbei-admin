@@ -2,10 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
-// import {$post} from '~util/index'
+import {$get,$put, $post} from '~util/index';
 import {serverUrl} from '~util/config'
-// import classNames from 'classnames/bind';
-// import styles from '~less/goodsadd.less';
+import classNames from 'classnames/bind';
+
+import styles from '~less/course-detail.less';
+let cx = classNames.bind(styles);
 import {Icon, Button, Upload, Modal,message,Input } from 'antd';
 const { TextArea } = Input;
 
@@ -14,12 +16,7 @@ const uploadAction = `${serverUrl}/admin/upload`;
 @observer
 class Paragraph extends React.PureComponent {
     @observable picture = '';
-    @observable text = '';
-    static defaultProps = {
-        show: true,
-        isAdd: true,
-        info: {}
-    }
+    @observable desc = '';
     static propTypes = {
         isAdd: PropTypes.bool.isRequired,
         show: PropTypes.bool.isRequired,
@@ -29,7 +26,7 @@ class Paragraph extends React.PureComponent {
     handleOk = ()=>{
         let obj = {
             picture : this.picture,
-            text: this.text
+            desc: this.desc
         }
         this.props.onHandel(obj)
     }
@@ -37,13 +34,17 @@ class Paragraph extends React.PureComponent {
         this.props.onHandel()
     }
     onChangeTextArea = (e)=>{
-        this.text = e.target.value
+        this.desc = e.target.value
     }
     uploadPicture = (info)=>{
         if (info.file.status === 'done') {
             this.picture = info.file.response.path;
             message.success(`${info.file.name} file uploaded successfully`);
         }
+    }
+    componentWillReceiveProps({picture,desc}){
+        this.picture = picture
+        this.desc = desc
     }
     render(){
         let {isAdd,show,info} = this.props
@@ -64,13 +65,13 @@ class Paragraph extends React.PureComponent {
                     </Button>
                 </Upload>
                 <div>
-                    {this.picture ? <img src={ serverUrl + this.picture}/> : null}
+                    {this.picture ? <img src={ serverUrl + this.picture} style={{maxWidth: 350}}/> : null}
                     <div></div>
                     <TextArea 
                         placeholder="请输入段落文字"
                         autosize 
-                        defaultValue={info.text} 
-                        value = {this.text}
+                        defaultValue={info.desc} 
+                        value = {this.desc}
                         onChange={this.onChangeTextArea}
                         />
                 </div>
@@ -88,22 +89,81 @@ export default class CourseAdd extends React.PureComponent{
     }
     static propTypes = {
         // store: PropTypes.object.isRequired,
+        match: PropTypes.object.isRequired,
         history: PropTypes.object.isRequired
     }
+    @observable loading = true;
     @observable showParagraph = false;
     @observable isAdd = true;
-    @observable sections = [];
-    @observable currentInfo = {}
+    @observable info = {
+        title:'',
+        cover: '',
+        sections: []
+    };
+    @observable currentSection = {};
     uploadCover = (info)=>{
-        // const { getFieldValue } = this.props.form;
         if (info.file.status === 'done') {
-                return info.file.response.path
-          }else{
-            //   return getFieldValue('cover')
-          }
+            this.info.cover = info.file.response.path;
+            message.success(`${info.file.name} file uploaded successfully`);
+        }
+    }
+    updateRemote =  async (_id)=>{
+        try{
+            await $put(`/course/${_id}`,{...this.info})
+            Modal.success({
+                title: '提示',
+                content: '修改成功'
+            })
+            this.props.history.replace('/courses/list')
+        }catch(data){
+            Modal.error({
+                title: 'error',
+                content: data.err
+            })
+        }
+    }
+    addRemote =  async ()=>{
+        try{
+            await $post(`/course`,{...this.info})
+            Modal.success({
+                title: '提示',
+                content: '添加'
+            })
+            this.props.history.replace('/courses/list')
+        }catch(data){
+            Modal.error({
+                title: 'error',
+                content: data.err
+            })
+        }
+    }
+    verify(){
+        let {title,cover,sections} = this.info;
+        let errorText = '';
+        if(!title){
+            errorText = '请填写标题';
+        }else if(!cover){
+            errorText = '请上传封面';
+        }else if(!sections.length){
+            errorText = '至少填写一个段落';
+           
+        }
+        if(!errorText){
+            return true
+        }
+        Modal.warning({
+            title: '警告',
+            content: errorText
+        })
     }
     submit = ()=>{
-
+        if(!this.verify())return false;
+        let {_id} = this.props.match.params;
+        if(_id){
+            this.updateRemote(_id)
+        }else{
+            this.addRemote()
+        }
     }
     addParagraph = ()=>{
         this.showParagraph = true;
@@ -112,9 +172,12 @@ export default class CourseAdd extends React.PureComponent{
     }
     handelParagraph = (obj)=>{
         if(obj){
-            this.sections.push(obj)
+            this.info.sections.push(obj)
         }
         this.showParagraph = false;
+    }
+    changeTitle = (e)=>{
+        this.info.title = e.target.value;
     }
     confirm(values){
         console.log(values)
@@ -126,37 +189,76 @@ export default class CourseAdd extends React.PureComponent{
             }
         });
     }
+    async initialData(){
+        let {_id} = this.props.match.params;
+        if(!_id)return false;
+        try{
+            let res = await $get(`/course/${_id}`)
+            this.info = {...res.data}
+            this.loading = false;
+        }catch(data){
+            Modal.error({
+                title: 'error',
+                content: data.err
+            })
+        }
+    }
+    componentWillMount(){
+        this.initialData()
+    }
     render() {
+        let {info} = this;
         return (
-            <div>
-                <Upload name="file" action={uploadAction} showUploadList={false} listType="picture-card">
-                    <div>
-                        <Icon type="plus" />
-                        <div>上传封面</div>
-                    </div>
-                </Upload>
-                {
-                    this.sections.length ? 
-                    this.sections.map((info,index)=>(
-                        <div key={index}>
-                            {info.picture ? <img src={ serverUrl + info.picture}/> : null}
-                            <div>{info.text}</div>
-                        </div>
-                    ))
-                    : null
-                }
-                <Button type="primary" onClick={this.submit} loading={this.isLoading}>
-                    提交
-                </Button>
-                <Button type="primary" onClick={this.addParagraph}>
-                    添加段落
-                </Button>
-                <Paragraph 
-                    info={this.currentInfo} 
-                    isAdd={this.isAdd} 
-                    show={this.showParagraph}
-                    onHandel={this.handelParagraph}
+            <div className={cx('content')}>
+                <div className={cx('control')}>
+                    <Upload name="file" 
+                        showUploadList={false}
+                        onChange={this.uploadCover}
+                        action={uploadAction}>
+                        <Button>
+                            <Icon type="upload" /> 上传封面
+                        </Button>
+                    </Upload>
+                    <br/>
+                    <br/>
+                    <Button type="primary" onClick={this.addParagraph}>
+                        添加段落
+                    </Button>
+                    <br/>
+                    <br/>
+                    <Button type="primary" onClick={this.submit} loading={this.isLoading}>
+                        提交
+                    </Button>
+                    <Paragraph 
+                        info={this.currentSection} 
+                        isAdd={this.isAdd} 
+                        show={this.showParagraph}
+                        onHandel={this.handelParagraph}
                     />
+                </div>
+                <div className={cx('view')}>
+                    <div className={cx('view-title')}>
+                        <Input placeholder="请填写标题" onChange={this.changeTitle} value={info.title}/>
+                    </div>
+                    {
+                        info.cover ? <div className={cx('image-cover')} style={{backgroundImage:`url(${serverUrl + info.cover})`}}></div>  : null
+                    }
+                    <div className={cx('view-composition')}>
+                        {
+                            info.sections ? 
+                            info.sections.map((section,index)=>(
+                                <div key={index} className={cx('view-section')}>
+                                    {
+                                        section.picture ? 
+                                        <img src={serverUrl + section.picture} className={cx('image-picture')}/> : null 
+                                    }
+                                    <div>{section.desc}</div>
+                                </div>
+                            ))
+                            : null
+                        }
+                    </div>
+                </div>
             </div>
         );
       }
