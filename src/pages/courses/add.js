@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
-import {$get,$put, $post} from '~util/index';
+import {$get,$put, $post,$delete} from '~util/index';
 import {serverUrl} from '~util/config'
 import classNames from 'classnames/bind';
 
 import styles from '~less/course-detail.less';
 let cx = classNames.bind(styles);
-import {Icon, Button, Upload, Modal,message,Input } from 'antd';
+import {Icon, Button, Upload, Modal,message,Input,Switch } from 'antd';
 const { TextArea } = Input;
 
 const uploadAction = `${serverUrl}/admin/upload`;
@@ -42,7 +42,8 @@ class Paragraph extends React.PureComponent {
             message.success(`${info.file.name} file uploaded successfully`);
         }
     }
-    componentWillReceiveProps({picture,desc}){
+    componentWillReceiveProps({info:{picture,desc}}){
+        console.log(picture,desc)
         this.picture = picture
         this.desc = desc
     }
@@ -96,6 +97,7 @@ export default class CourseAdd extends React.PureComponent{
     @observable info = {
         title:'',
         cover: '',
+        isOnline: false,
         sections: []
     };
     @observable currentSection = {};
@@ -107,12 +109,15 @@ export default class CourseAdd extends React.PureComponent{
     }
     updateRemote =  async (_id)=>{
         try{
-            await $put(`/course/${_id}`,{...this.info})
+            let {cover,isOnline,sections,title} = this.info;
+            await $put(`/course/${_id}`,{cover,isOnline,sections,title})
             Modal.success({
                 title: '提示',
-                content: '修改成功'
+                content: '修改成功',
+                onOk:()=>{
+                    this.props.history.replace('/courses/list')
+                }
             })
-            this.props.history.replace('/courses/list')
         }catch(data){
             Modal.error({
                 title: 'error',
@@ -122,12 +127,16 @@ export default class CourseAdd extends React.PureComponent{
     }
     addRemote =  async ()=>{
         try{
-            await $post(`/course`,{...this.info})
+            let {cover,isOnline,sections,title} = this.info;
+            await $post(`/course`,{cover,isOnline,sections,title})
             Modal.success({
                 title: '提示',
-                content: '添加'
+                content: '添加成功',
+                onOk:()=>{
+                    this.props.history.replace('/courses/list')
+                }
             })
-            this.props.history.replace('/courses/list')
+            
         }catch(data){
             Modal.error({
                 title: 'error',
@@ -165,17 +174,33 @@ export default class CourseAdd extends React.PureComponent{
     }
     addParagraph = ()=>{
         this.showParagraph = true;
-        this.currentInfo = {};
+        this.currentSection = {};
         this.isAdd = true;
     }
     handelParagraph = (obj)=>{
         if(obj){
-            this.info.sections.push(obj)
+            if(this.isAdd){
+                this.info.sections.push(obj)
+            }else{
+                Object.assign(this.currentSection,obj)
+            }
         }
         this.showParagraph = false;
     }
+    paragraphEdit = (index)=>{
+        this.currentSection = this.info.sections[index];
+        this.showParagraph = true;
+        this.isAdd = false;
+        console.log(index,this.currentSection)
+    }
+    paragraphRemove = (index)=>{
+        this.info.sections = this.info.sections.filter((item,i)=>i!==index)
+    }
     changeTitle = (e)=>{
         this.info.title = e.target.value;
+    }
+    onSwitchChange = (checked)=>{
+        this.info.isOnline = checked
     }
     confirm(values){
         console.log(values)
@@ -184,6 +209,20 @@ export default class CourseAdd extends React.PureComponent{
             content: '确认提交?',
             onOk:() =>{
               this.postData(values)
+            }
+        });
+    }
+    removeRemote = ()=>{
+        Modal.confirm({
+            title: '提示',
+            content: '删除后无法恢复?',
+            onOk: async () =>{
+              let {_id} = this.props.match.params;
+              let res = await $delete(`/course/${_id}`);
+               Modal.success({
+                    title: '提示',
+                    content: res.msg
+               })
             }
         });
     }
@@ -206,9 +245,14 @@ export default class CourseAdd extends React.PureComponent{
     }
     render() {
         let {info} = this;
+        let {_id} = this.props.match.params;
+        console.log(info.isOnline,'render')
         return (
             <div className={cx('content')}>
                 <div className={cx('control')}>
+                    <Switch checkedChildren="已发布" unCheckedChildren="未发布" checked={info.isOnline} onChange={this.onSwitchChange}/>
+                    <br/>
+                    <br/>
                     <Upload name="file" 
                         showUploadList={false}
                         onChange={this.uploadCover}
@@ -227,6 +271,14 @@ export default class CourseAdd extends React.PureComponent{
                     <Button type="primary" onClick={this.submit} loading={this.isLoading}>
                         提交
                     </Button>
+                    <br/>
+                    <br/>
+                    {
+                        _id ? <Button type="danger" onClick={this.removeRemote}>
+                            删除
+                        </Button>: null
+                    }
+                    
                     <Paragraph 
                         info={this.currentSection} 
                         isAdd={this.isAdd} 
@@ -250,7 +302,11 @@ export default class CourseAdd extends React.PureComponent{
                                         section.picture ? 
                                         <img src={serverUrl + section.picture} className={cx('image-picture')}/> : null 
                                     }
-                                    <div>{section.desc}</div>
+                                    <pre>{section.desc}</pre>
+                                    <div className={cx('paragraph-operate')}>
+                                        <Button type="dashed" onClick={()=>this.paragraphEdit(index)}>修改</Button>
+                                        <Button type="danger" onClick={()=>this.paragraphRemove(index)}>删除</Button>
+                                    </div>
                                 </div>
                             ))
                             : null
