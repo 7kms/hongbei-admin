@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import { observable } from 'mobx';
+import { observable , action} from 'mobx';
 import {$put,$get,$delete} from '~util/index'
 import {serverUrl} from '~util/config'
 // import classNames from 'classnames/bind';
@@ -27,6 +27,15 @@ class GoodsDetail extends React.PureComponent{
         history: PropTypes.object.isRequired,
         match:  PropTypes.object.isRequired
     }
+    @observable showStandard = false;
+    @observable standardError = false;
+    @observable priceInfoError = false;
+    @observable standardList = [];
+    @observable currentStandard = {
+        text:'',
+        price:''
+    };
+
     @observable categoryList = [];
     @observable info={};
     @observable loading= true;
@@ -55,10 +64,12 @@ class GoodsDetail extends React.PureComponent{
             this.info = {...res[0].data}
             this.info.coverLList = this.generatePictureList([res[0].data.cover])
             this.info.picLList = this.generatePictureList(res[0].data.pictures)
+            this.standardList = res[0].data.priceInfo || [];
             this.initialPicture = true;
             this.loading = false;
             console.log(this,this.initialPicture)
         }).catch(data=>{
+            console.log(data)
             Modal.error({
                 title: 'error',
                 content: data.err
@@ -73,7 +84,7 @@ class GoodsDetail extends React.PureComponent{
         if(this.initialPicture){
             this.initialPicture = false;
             this.props.form.setFieldsValue({
-                standards: this.info.standards.join(' '),
+                // standards: this.info.standards.join(' '),
                 cover: this.info.cover,
                 pictures: this.info.pictures
             })
@@ -145,10 +156,45 @@ class GoodsDetail extends React.PureComponent{
         e.preventDefault();
         this.props.form.validateFields(async (err, values) => {
             if (!err) {
-                values.standards = values.standards.trim().split(/\s+/)
-                this.confirm(()=>this.postData(values));
+                if(this.standardList.length < 1){
+                    this.priceInfoError = true;
+                }else{
+                    values.priceInfo = this.standardList; 
+                    this.confirm(()=>this.postData(values));
+                }
             }
         });
+    }
+    addStandard = ()=>{
+        this.currentStandard = {
+            text:'',
+            price:''
+        }
+        this.showStandard = true;
+    }
+    removeStandard = (index)=>{
+        this.standardList.splice(index,1);
+    }
+
+    @action setStandard = ()=>{
+        let obj = this.currentStandard;
+        let reg = /^\d+(\.?\d+)?$/;
+        if(!obj.text || !reg.test(obj.price)){
+            this.standardError = true;
+        }else{
+            this.standardError = false;
+            this.showStandard = false;
+            this.priceInfoError = false;
+            this.standardList.push(obj)
+        }
+    }
+
+    calcelStandard = ()=>{
+        this.showStandard = false;
+    }
+    changeStandard = (type,e)=>{
+        let value = e.target.value;
+        this.currentStandard[type] = value
     }
     render() {
         const { getFieldDecorator,getFieldValue } = this.props.form;
@@ -159,147 +205,156 @@ class GoodsDetail extends React.PureComponent{
              ? 
             null
              :
-            <Form onSubmit={this.handleSubmit}>
-                <Row type="flex" justify="space-between">
-                    <Col span={7}>
-                        <div className="dfn-label">商品名称</div>
+             <div>
+                 <Modal
+                    title="设置规格"
+                    visible={this.showStandard}
+                    onOk={this.setStandard}
+                    onCancel={this.calcelStandard}
+                    >
+                    <Input placeholder="规格" value={this.currentStandard.text} onChange={(e)=>this.changeStandard('text',e)}/>
+                    <br/>
+                    <Input placeholder="价格(元)" value={this.currentStandard.price} onChange={(e)=>this.changeStandard('price',e)}/>
+                    {
+                        this.standardError ? <div className="error" style={{color:'red'}}>格式不正确</div> : null
+                    }
+                </Modal>
+                 <Form onSubmit={this.handleSubmit}>
+                    <Row type="flex" justify="space-between">
+                        <Col span={12}>
+                            <div className="dfn-label">商品名称</div>
+                            <FormItem>
+                                {getFieldDecorator('name', {
+                                    initialValue: info.name,
+                                    rules: [{ required: true, message: '请填写商品名称!' }],
+                                })(
+                                    <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder="商品名称" />
+                                )}
+                            </FormItem>
+                        </Col>
+                        <Col span={12}>
+                            <div className="dfn-label">商品库存(个)</div>
+                            <FormItem>
+                                {getFieldDecorator('store', {
+                                    initialValue: info.store,
+                                    rules: [
+                                        { required: true, message: '请填写商品库存!' },
+                                        { pattern: /^\d+$/, message: '库存只能填写整数!'}],
+                                })(
+                                    <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="text" placeholder="商品库存" />
+                                )}
+                            </FormItem>
+                        </Col>
+                     
+                    </Row>
+                    <Row>
+                            <div className="dfn-label">商品描述</div>
+                            <FormItem>
+                                {getFieldDecorator('description', {
+                                    initialValue: info.description,
+                                    rules: [{ required: true, message: '请填写商品描述!' }],
+                                })(
+                                    <Input type="textarea" placeholder="商品描述" /> 
+                                )}
+                            </FormItem>
+                    </Row>
+                    <Row>
+                        <div className="dfn-label">商品封面(建议300*300的jpg)</div>
+                        <div className="goods-cover">
+                            {getFieldValue('cover') ? <div className="goods-pic"><img src={serverUrl + getFieldValue('cover') }/></div>: null}
+                        </div>
                         <FormItem>
-                            {getFieldDecorator('name', {
-                                initialValue: info.name,
-                                rules: [{ required: true, message: '请填写商品名称!' }],
+                            {getFieldDecorator('cover', {
+                                getValueFromEvent: this.uploadCover,
+                                rules: [{ required: true, message: '请上传商品封面!' }]
                             })(
-                                <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder="商品名称" />
+                                <Upload  name="file" action={uploadAction} showUploadList={false} defaultFileList={Array.prototype.slice.call(info.coverLList,0)} listType="picture-card">
+                                    <div>
+                                        <Icon type="plus" />
+                                        <div>上传封面</div>
+                                    </div>
+                                </Upload>
                             )}
                         </FormItem>
-                    </Col>
-                    <Col span={7}>
-                        <div className="dfn-label">商品库存(个)</div>
+                    </Row>
+                    <Row>
+                        <div className="dfn-label">详情照片</div>
+                        <div className="goods-cover">
+                            {getFieldValue('pictures') ? getFieldValue('pictures').map((url,index)=> <div key={index} className="goods-pic"><img src={serverUrl + url}/></div>) : null}
+                        </div>
                         <FormItem>
-                            {getFieldDecorator('store', {
-                                initialValue: info.store,
-                                rules: [
-                                    { required: true, message: '请填写商品库存!' },
-                                    { pattern: /^\d+$/, message: '库存只能填写整数!'}],
+                            {getFieldDecorator('pictures', {
+                                getValueFromEvent: this.uploadPictures,
+                                rules: [{ required: true, message: '请上传详情照片!' }]
                             })(
-                                <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="text" placeholder="商品库存" />
+                                <Upload name="file" action={uploadAction} listType="picture-card" defaultFileList={Array.prototype.slice.call(info.picLList,0)} showUploadList={{showPreviewIcon: false, showRemoveIcon: true}} ref={(node)=>this.uploadPicNode = node}>
+                                    <div>
+                                        <Icon type="plus" />
+                                        <div>上传照片</div>
+                                    </div>
+                                </Upload>
                             )}
                         </FormItem>
-                    </Col>
-                    <Col span={7}>
-                        <div  className="dfn-label">商品单价(元)</div>
+                    </Row>
+                    <Row>
+                        <div className="dfn-label">商品规格</div>
+                        {this.priceInfoError ? <div className="error">请添加规格和价格</div> : null}
                         <FormItem>
-                            {getFieldDecorator('price', {
-                                initialValue: info.price,
-                                rules: [
-                                    { required: true, message: '请填写商品单价!' },
-                                    { pattern: /^\d+\.\d{2}$/, message: '单价请保留2位小数!'}
-                                ],
-                            })(
-                                <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="text" placeholder="商品单价" />
-                            )}
-                        </FormItem>
-                    </Col>
-                </Row>
-               <Row>
-                     <div className="dfn-label">商品描述</div>
-                     <FormItem>
-                        {getFieldDecorator('description', {
-                            initialValue: info.description,
-                            rules: [{ required: true, message: '请填写商品描述!' }],
-                        })(
-                            <Input type="textarea" placeholder="商品描述" /> 
-                        )}
-                    </FormItem>
-               </Row>
-               <Row>
-                <div className="dfn-label">商品封面(建议300*300的jpg)</div>
-                <div className="goods-cover">
-                    {getFieldValue('cover') ? <div className="goods-pic"><img src={serverUrl + getFieldValue('cover') }/></div>: null}
-                </div>
-                <FormItem>
-                    {getFieldDecorator('cover', {
-                        getValueFromEvent: this.uploadCover,
-                        rules: [{ required: true, message: '请上传商品封面!' }]
-                    })(
-                        <Upload  name="file" action={uploadAction} showUploadList={false} defaultFileList={Array.prototype.slice.call(info.coverLList,0)} listType="picture-card">
                             <div>
-                                <Icon type="plus" />
-                                <div>上传封面</div>
+                                <Button type="primary" onClick={this.addStandard}>添加规格</Button>
                             </div>
-                        </Upload>
-                    )}
-                 </FormItem>
-               </Row>
-               <Row>
-                <div className="dfn-label">详情照片</div>
-                <div className="goods-cover">
-                    {getFieldValue('pictures') ? getFieldValue('pictures').map((url,index)=> <div key={index} className="goods-pic"><img src={serverUrl + url}/></div>) : null}
-                </div>
-                <FormItem>
-                    {getFieldDecorator('pictures', {
-                        getValueFromEvent: this.uploadPictures,
-                        rules: [{ required: true, message: '请上传详情照片!' }]
-                    })(
-                        <Upload name="file" action={uploadAction} listType="picture-card" defaultFileList={Array.prototype.slice.call(info.picLList,0)} showUploadList={{showPreviewIcon: false, showRemoveIcon: true}} ref={(node)=>this.uploadPicNode = node}>
                             <div>
-                                <Icon type="plus" />
-                                <div>上传照片</div>
+                                {this.standardList.map((item,index)=>{
+                                    return <div key={index}>
+                                        <span>{item.text}</span>&emsp;&emsp;<span>{'Ｙ' + item.price}</span>&emsp;&emsp;<Button type="danger" onClick={()=>this.removeStandard(index)}>删除</Button>
+                                    </div>
+                                })}
                             </div>
-                        </Upload>
-                    )}
-                 </FormItem>
-               </Row>
-               <Row>
-                     <div className="dfn-label">商品规格(多种规格用空格隔开;如: 半径3cm  半径5cm)</div>
-                     <FormItem>
-                        {getFieldDecorator('standards', {
-                            initialValue: info.standards,
-                            rules: [{ required: true, message: '请填写商品规格!' }],
-                        })(
-                            <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="text" placeholder="商品规格(多种规格用空格隔开;如: 半径3cm  半径5cm)" />
-                        )}
-                    </FormItem>
-               </Row>
-               <Row>
-                     <div className="dfn-label">商品分类</div>
-                     <FormItem>
-                        {getFieldDecorator('category',{
-                            initialValue: info.category,
-                            rules: [{ required: true, message: '请选择商品分类!' }]
-                        })(
-                            <RadioGroup>
-                                {
-                                    this.categoryList.map(item=><Radio value={item._id} key={item._id}>{item.name}</Radio>)
-                                }
-                            </RadioGroup>
-                        )}
-                    </FormItem>
-               </Row>
-               <Row type="flex" justify="space-between">
-                    <Col span={7}>
-                        <div className="dfn-label">是否上架</div>
-                        <FormItem>
-                        {getFieldDecorator('onSale', { valuePropName: 'checked' ,initialValue: info.onSale})(
-                            <Switch 
-                                checkedChildren={<Icon type="check" />} 
-                                unCheckedChildren={<Icon type="cross" />}/>
-                        )}
                         </FormItem>
-                    </Col>
-                </Row>
-                <Row>
-                <Col span={3}>
-                    <Button type="primary" htmlType="submit" loading={this.isLoading} disabled={this.disabled}>
-                       提交修改
-                    </Button>
-                </Col>
-                <Col span={3} offset={3}>
-                    <Button type="danger" onClick={this.deleteRemoteGoods}>
-                        删除商品
-                    </Button>
-                </Col>
-               </Row>
-            </Form>
+                    </Row>
+                    <Row>
+                            <div className="dfn-label">商品分类</div>
+                            <FormItem>
+                                {getFieldDecorator('category',{
+                                    initialValue: info.category,
+                                    rules: [{ required: true, message: '请选择商品分类!' }]
+                                })(
+                                    <RadioGroup>
+                                        {
+                                            this.categoryList.map(item=><Radio value={item._id} key={item._id}>{item.name}</Radio>)
+                                        }
+                                    </RadioGroup>
+                                )}
+                            </FormItem>
+                    </Row>
+                    <Row type="flex" justify="space-between">
+                            <Col span={7}>
+                                <div className="dfn-label">是否上架</div>
+                                <FormItem>
+                                {getFieldDecorator('onSale', { valuePropName: 'checked' ,initialValue: info.onSale})(
+                                    <Switch 
+                                        checkedChildren={<Icon type="check" />} 
+                                        unCheckedChildren={<Icon type="cross" />}/>
+                                )}
+                                </FormItem>
+                            </Col>
+                        </Row>
+                        <Row>
+                        <Col span={3}>
+                            <Button type="primary" htmlType="submit" loading={this.isLoading} disabled={this.disabled}>
+                            提交修改
+                            </Button>
+                        </Col>
+                        <Col span={3} offset={3}>
+                            <Button type="danger" onClick={this.deleteRemoteGoods}>
+                                删除商品
+                            </Button>
+                        </Col>
+                    </Row>
+                </Form>
+             </div>
+
+            
         );
       }
 }

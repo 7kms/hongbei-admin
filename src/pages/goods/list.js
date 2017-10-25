@@ -110,7 +110,11 @@ class GoodsList extends React.PureComponent{
                     />
                     <Column
                         title="单价"
-                        dataIndex="price"
+                        render={(text, record) => (
+                            <div>
+                                { record.priceInfo[0].price}
+                            </div>
+                        )}
                     />
                     <Column
                         title="库存"
@@ -165,7 +169,7 @@ class GoodsList extends React.PureComponent{
 class TableFilter extends React.PureComponent{
     static propTypes = {
         onFilterChange: PropTypes.func.isRequired,
-        categoryList: PropTypes.array.isRequired,
+        categoryList: PropTypes.object.isRequired,
     }
     render(){
         let {onFilterChange,categoryList} = this.props;

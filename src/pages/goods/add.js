@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
-import { observable } from 'mobx';
+import { observable,action } from 'mobx';
 import {$post,$get} from '~util/index'
 import {serverUrl} from '~util/config'
 // import classNames from 'classnames/bind';
@@ -25,7 +25,16 @@ class GoodsAdd extends React.PureComponent{
         // store: PropTypes.object.isRequired,
         history: PropTypes.object.isRequired
     }
+    @observable showStandard = false;
+    @observable standardError = false;
+    @observable priceInfoError = false;
+    @observable standardList = [];
+    
     @observable categoryList = [];
+    @observable currentStandard = {
+        text:'',
+        price:''
+    };
     async initialData(){
        let res =  await $get('/category');
        this.categoryList = res.data;
@@ -85,17 +94,68 @@ class GoodsAdd extends React.PureComponent{
         e.preventDefault();
         this.props.form.validateFields(async (err, values) => {
             if (!err) {
-                values.standards = values.standards.trim().split(/\s+/)
-                this.confirm(values);
+                // values.standards = values.standards.trim().split(/\s+/)
+                // this.confirm(values);
+                if(this.standardList.length < 1){
+                    this.priceInfoError = true;
+                }else{
+                    values.priceInfo = this.standardList; 
+                    this.confirm(values);
+                }
             }
         });
+    }
+    addStandard = ()=>{
+        this.currentStandard = {
+            text:'',
+            price:''
+        }
+        this.showStandard = true;
+    }
+    removeStandard = (index)=>{
+        this.standardList.splice(index,1);
+    }
+
+    @action setStandard = ()=>{
+        let obj = this.currentStandard;
+        let reg = /^\d+(\.?\d+)?$/;
+        if(!obj.text || !reg.test(obj.price)){
+            this.standardError = true;
+        }else{
+            this.standardError = false;
+            this.showStandard = false;
+            this.priceInfoError = false;
+            this.standardList.push(obj)
+        }
+    }
+
+    calcelStandard = ()=>{
+        this.showStandard = false;
+    }
+    changeStandard = (type,e)=>{
+        let value = e.target.value;
+        this.currentStandard[type] = value
     }
     render() {
         const { getFieldDecorator,getFieldValue } = this.props.form;
         return (
-            <Form onSubmit={this.handleSubmit}>
+            <div>
+                <Modal
+                        title="设置规格"
+                        visible={this.showStandard}
+                        onOk={this.setStandard}
+                        onCancel={this.calcelStandard}
+                    >
+                    <Input placeholder="规格" value={this.currentStandard.text} onChange={(e)=>this.changeStandard('text',e)}/>
+                    <br/>
+                    <Input placeholder="价格(元)" value={this.currentStandard.price} onChange={(e)=>this.changeStandard('price',e)}/>
+                    {
+                        this.standardError ? <div className="error" style={{color:'red'}}>格式不正确</div> : null
+                    }
+                </Modal>
+                <Form onSubmit={this.handleSubmit}>
                 <Row type="flex" justify="space-between">
-                    <Col span={7}>
+                    <Col span={12}>
                         <div className="dfn-label">商品名称</div>
                         <FormItem>
                             {getFieldDecorator('name', {
@@ -105,7 +165,7 @@ class GoodsAdd extends React.PureComponent{
                             )}
                         </FormItem>
                     </Col>
-                    <Col span={7}>
+                    <Col span={12}>
                         <div className="dfn-label">商品库存(个)</div>
                         <FormItem>
                             {getFieldDecorator('store', {
@@ -114,19 +174,6 @@ class GoodsAdd extends React.PureComponent{
                                     { pattern: /^\d+$/, message: '库存只能填写整数!'}],
                             })(
                                 <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="text" placeholder="商品库存" />
-                            )}
-                        </FormItem>
-                    </Col>
-                    <Col span={7}>
-                        <div  className="dfn-label">商品单价(元)</div>
-                        <FormItem>
-                            {getFieldDecorator('price', {
-                                rules: [
-                                    { required: true, message: '请填写商品单价!' },
-                                    { pattern: /^\d+\.\d{2}$/, message: '单价请保留2位小数!'}
-                                ],
-                            })(
-                                <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="text" placeholder="商品单价" />
                             )}
                         </FormItem>
                     </Col>
@@ -180,13 +227,19 @@ class GoodsAdd extends React.PureComponent{
                  </FormItem>
                </Row>
                <Row>
-                     <div className="dfn-label">商品规格(多种规格用空格隔开;如: 半径3cm  半径5cm)</div>
+                     <div className="dfn-label">商品规格</div>
+                     {this.priceInfoError ? <div className="error">请添加规格和价格</div> : null}
                      <FormItem>
-                        {getFieldDecorator('standards', {
-                            rules: [{ required: true, message: '请填写商品规格!' }],
-                        })(
-                            <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="text" placeholder="商品规格(多种规格用空格隔开;如: 半径3cm  半径5cm)" />
-                        )}
+                        <div>
+                            <Button type="primary" onClick={this.addStandard}>添加规格</Button>
+                        </div>
+                        <div>
+                            {this.standardList.map((item,index)=>{
+                                return <div key={index}>
+                                    <span>{item.text}</span>&emsp;&emsp;<span>{'Ｙ' + item.price}</span>&emsp;&emsp;<Button type="danger" onClick={()=>this.removeStandard(index)}>删除</Button>
+                                </div>
+                            })}
+                        </div>
                     </FormItem>
                </Row>
                <Row>
@@ -234,6 +287,8 @@ class GoodsAdd extends React.PureComponent{
                     </Button>
                 </FormItem>
             </Form>
+            </div>
+            
         );
       }
 }
