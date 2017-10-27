@@ -99,7 +99,7 @@ class GoodsAdd extends React.PureComponent{
                 if(this.standardList.length < 1){
                     this.priceInfoError = true;
                 }else{
-                    values.priceInfo = this.standardList; 
+                    values.priceInfo = this.standardList;
                     this.confirm(values);
                 }
             }
@@ -254,6 +254,16 @@ class GoodsAdd extends React.PureComponent{
                                     this.categoryList.map(item=><Radio value={item._id} key={item._id}>{item.name}</Radio>)
                                 }
                             </RadioGroup>
+                        )}
+                    </FormItem>
+               </Row>
+               <Row>
+                     <div className="dfn-label">订购帮助</div>
+                     <FormItem>
+                        {getFieldDecorator('helpInfo', {
+                            rules: [{ required: true, message: '请填写订购帮助!' }],
+                        })(
+                            <Input type="textarea" placeholder="订购帮助" /> 
                         )}
                     </FormItem>
                </Row>

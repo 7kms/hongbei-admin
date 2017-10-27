@@ -159,7 +159,7 @@ class GoodsDetail extends React.PureComponent{
                 if(this.standardList.length < 1){
                     this.priceInfoError = true;
                 }else{
-                    values.priceInfo = this.standardList; 
+                    values.priceInfo = this.standardList;
                     this.confirm(()=>this.postData(values));
                 }
             }
@@ -327,6 +327,29 @@ class GoodsDetail extends React.PureComponent{
                                 )}
                             </FormItem>
                     </Row>
+                    <Row>
+                     <div className="dfn-label">订购帮助</div>
+                     <FormItem>
+                        {getFieldDecorator('helpInfo', {
+                            initialValue: info.helpInfo,
+                            rules: [{ required: true, message: '请填写订购帮助!' }],
+                        })(
+                            <Input type="textarea" placeholder="订购帮助" /> 
+                        )}
+                    </FormItem>
+               </Row>
+               <Row type="flex" justify="space-between">
+                    <Col span={7}>
+                        <div className="dfn-label">是否展示在首页</div>
+                        <FormItem>
+                        {getFieldDecorator('onMainPage', { valuePropName: 'checked' ,initialValue: info.onMainPage})(
+                            <Switch 
+                                checkedChildren={<Icon type="check" />} 
+                                unCheckedChildren={<Icon type="cross" />}/>
+                        )}
+                        </FormItem>
+                    </Col>
+                </Row>
                     <Row type="flex" justify="space-between">
                             <Col span={7}>
                                 <div className="dfn-label">是否上架</div>
