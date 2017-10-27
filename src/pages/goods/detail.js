@@ -20,6 +20,7 @@ class GoodsDetail extends React.PureComponent{
         this.uploadCover = this.uploadCover.bind(this)
         this.uploadPictures = this.uploadPictures.bind(this)
         this.deleteRemoteGoods = this.deleteRemoteGoods.bind(this)
+        this.uploadMainPageCover = this.uploadMainPageCover.bind(this)
     }
     static propTypes = {
         form: PropTypes.object.isRequired,
@@ -63,6 +64,7 @@ class GoodsDetail extends React.PureComponent{
             this.categoryList = res[1].data;
             this.info = {...res[0].data}
             this.info.coverLList = this.generatePictureList([res[0].data.cover])
+            this.info.coverLList2 = this.generatePictureList([res[0].data.mainPageCover])
             this.info.picLList = this.generatePictureList(res[0].data.pictures)
             this.standardList = res[0].data.priceInfo || [];
             this.initialPicture = true;
@@ -86,9 +88,18 @@ class GoodsDetail extends React.PureComponent{
             this.props.form.setFieldsValue({
                 // standards: this.info.standards.join(' '),
                 cover: this.info.cover,
+                mainPageCover: this.info.mainPageCover,
                 pictures: this.info.pictures
             })
         }
+    }
+    uploadMainPageCover(info){
+        const { getFieldValue } = this.props.form;
+        if (info.file.status === 'done') {
+                return info.file.response.path
+          }else{
+              return getFieldValue('mainPageCover')
+          }
     }
     uploadCover(info){
         const { getFieldValue } = this.props.form;
@@ -219,6 +230,12 @@ class GoodsDetail extends React.PureComponent{
                         this.standardError ? <div className="error" style={{color:'red'}}>格式不正确</div> : null
                     }
                 </Modal>
+                <div>
+                    图片尽量小(jpg格式)，否则加载时间会比较长<br/>
+                    产品封面： 建议 350*350（正方形）， 最小175*175<br/>
+                    产品详情： 建议 750*750（正方形）， 最小375*375<br/>
+                    首页封面： 建议 750*400（长方形）， 最小375*200<br/>
+                </div>
                  <Form onSubmit={this.handleSubmit}>
                     <Row type="flex" justify="space-between">
                         <Col span={12}>
@@ -277,6 +294,25 @@ class GoodsDetail extends React.PureComponent{
                             )}
                         </FormItem>
                     </Row>
+                    <Row>
+                <div className="dfn-label">首页封面</div>
+                <div className="goods-cover">
+                    {getFieldValue('mainPageCover') ? <div className="goods-pic"><img src={serverUrl + getFieldValue('mainPageCover') }/></div>: null}
+                </div>
+                <FormItem>
+                    {getFieldDecorator('mainPageCover', {
+                        getValueFromEvent: this.uploadMainPageCover,
+                        // rules: [{ required: true, message: '请上传商品封面!' }]
+                    })(
+                        <Upload name="file" action={uploadAction} showUploadList={false} defaultFileList={Array.prototype.slice.call(info.coverLList2,0)} listType="picture-card">
+                            <div>
+                                <Icon type="plus" />
+                                <div>上传首页封面</div>
+                            </div>
+                        </Upload>
+                    )}
+                 </FormItem>
+               </Row>
                     <Row>
                         <div className="dfn-label">详情照片</div>
                         <div className="goods-cover">

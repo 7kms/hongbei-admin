@@ -19,6 +19,7 @@ class GoodsAdd extends React.PureComponent{
         super(props)
         this.uploadCover = this.uploadCover.bind(this)
         this.uploadPictures = this.uploadPictures.bind(this)
+        this.uploadMainPageCover = this.uploadMainPageCover.bind(this)
     }
     static propTypes = {
         form: PropTypes.object.isRequired,
@@ -41,6 +42,14 @@ class GoodsAdd extends React.PureComponent{
     }
     componentWillMount(){
         this.initialData()
+    }
+    uploadMainPageCover(info){
+        const { getFieldValue } = this.props.form;
+        if (info.file.status === 'done') {
+                return info.file.response.path
+          }else{
+              return getFieldValue('mainPageCover')
+          }
     }
     uploadCover(info){
         const { getFieldValue } = this.props.form;
@@ -153,6 +162,12 @@ class GoodsAdd extends React.PureComponent{
                         this.standardError ? <div className="error" style={{color:'red'}}>格式不正确</div> : null
                     }
                 </Modal>
+                <div>
+                    图片尽量小(jpg格式)，否则加载时间会比较长<br/>
+                    产品封面： 建议 350*350（正方形）， 最小175*175<br/>
+                    产品详情： 建议 750*750（正方形）， 最小375*375<br/>
+                    首页封面： 建议 750*400（长方形）， 最小375*200<br/>
+                </div>
                 <Form onSubmit={this.handleSubmit}>
                 <Row type="flex" justify="space-between">
                     <Col span={12}>
@@ -202,6 +217,25 @@ class GoodsAdd extends React.PureComponent{
                             <div>
                                 <Icon type="plus" />
                                 <div>上传封面</div>
+                            </div>
+                        </Upload>
+                    )}
+                 </FormItem>
+               </Row>
+               <Row>
+                <div className="dfn-label">首页封面</div>
+                <div className="goods-cover">
+                    {getFieldValue('mainPageCover') ? <div className="goods-pic"><img src={serverUrl + getFieldValue('mainPageCover') }/></div>: null}
+                </div>
+                <FormItem>
+                    {getFieldDecorator('mainPageCover', {
+                        getValueFromEvent: this.uploadMainPageCover,
+                        // rules: [{ required: true, message: '请上传商品封面!' }]
+                    })(
+                        <Upload name="file" action={uploadAction} showUploadList={false} listType="picture-card">
+                            <div>
+                                <Icon type="plus" />
+                                <div>上传首页封面</div>
                             </div>
                         </Upload>
                     )}
