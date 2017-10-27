@@ -260,9 +260,7 @@ class GoodsAdd extends React.PureComponent{
                <Row>
                      <div className="dfn-label">订购帮助</div>
                      <FormItem>
-                        {getFieldDecorator('helpInfo', {
-                            rules: [{ required: true, message: '请填写订购帮助!' }],
-                        })(
+                        {getFieldDecorator('helpInfo')(
                             <Input type="textarea" placeholder="订购帮助" /> 
                         )}
                     </FormItem>

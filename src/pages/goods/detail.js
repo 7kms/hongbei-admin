@@ -331,8 +331,7 @@ class GoodsDetail extends React.PureComponent{
                      <div className="dfn-label">订购帮助</div>
                      <FormItem>
                         {getFieldDecorator('helpInfo', {
-                            initialValue: info.helpInfo,
-                            rules: [{ required: true, message: '请填写订购帮助!' }],
+                            initialValue: info.helpInfo
                         })(
                             <Input type="textarea" placeholder="订购帮助" /> 
                         )}
