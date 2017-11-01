@@ -1,5 +1,10 @@
 const menu = [
   {
+    title:'活动管理',
+    icon:'appstore',
+    key: '/activities',
+  },
+  {
     title:'商品管理',
     icon:'appstore',
     key: '/goods',
