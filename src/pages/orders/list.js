@@ -38,7 +38,7 @@ class OrderList extends React.PureComponent{
         if(val == -1){
             delete this.queryInfo.options[key]
         }else{
-            this.queryInfo.options[key] = Boolean(val);
+            this.queryInfo.options[key] = val == 1 ? true : false;
         }
         this.getList()
     }
@@ -167,8 +167,8 @@ class TableFilter extends React.PureComponent{
                 <Col span={2}>
                     <Select className="select-block" defaultValue="-1"  onChange={(val)=>onFilterChange('onDeliver',val)}>
                         <Option value="-1">不限</Option>
-                        <Option value={1}>是</Option>
-                        <Option value={0}>否</Option>
+                        <Option value='1'>是</Option>
+                        <Option value='0'>否</Option>
                     </Select>
                 </Col>
             </Row>

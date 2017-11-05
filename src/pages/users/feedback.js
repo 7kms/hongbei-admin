@@ -51,7 +51,7 @@ class FeedList extends React.PureComponent{
         try{
             this.loading = true;
             let res = await $get('/feed',{...this.queryInfo})
-            this.list = res.data;
+            this.list = res.data.filter(item=>!!item.user);
             this.total = res.total;
         }catch(err){
             console.log(err);
