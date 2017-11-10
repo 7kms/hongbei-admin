@@ -5,6 +5,11 @@ const menu = [
     key: '/activities',
   },
   {
+    title:'促销管理',
+    icon:'appstore',
+    key: '/promotion',
+  },
+  {
     title:'商品管理',
     icon:'appstore',
     key: '/goods',
