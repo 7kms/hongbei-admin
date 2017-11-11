@@ -3,20 +3,17 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
 import {$get,$post,$put} from '~util/index';
-import {serverUrl} from '~util/config'
-import {Icon, Button, Upload, message, Input, Switch,Row ,Col, Modal} from 'antd';
-const { TextArea } = Input;
-const uploadAction = `${serverUrl}/admin/upload`;
+import { Button, Input, Row , Modal, Switch,Col,Icon} from 'antd';
 
 // @inject('store')
 @observer
 class Page extends PureComponent{
-    @observable acitvity = {
-        desc:'',
-        title:'',
-        picture: '',
+    @observable promotion = {
+        point: 20,
+        reward: 5,
         enable: false
     };
+    @observable strategy = '';
     @observable loading = true;
     constructor(props){
         super(props);
@@ -24,30 +21,21 @@ class Page extends PureComponent{
     static propTypes = {
         match: PropTypes.object.isRequired
     }
-    uploadPicture = (info)=>{
-        if (info.file.status === 'done') {
-            this.acitvity.picture = info.file.response.path;
-            message.success(`${info.file.name} file uploaded successfully`);
-        }
-    }
-    onChangeTitle = (e)=>{
-        this.acitvity.title = e.target.value
-    }
-    onChangeTextArea = (e)=>{
-        this.acitvity.desc = e.target.value
+    onChangeStrategy = (e)=>{
+        this.strategy = e.target.value
     }
     onChangeSwitch = (checked)=>{
-        this.acitvity.enable = checked
+        this.promotion.enable = checked
     }
-    async changeRemote({_id,desc,title,picture,enable}){
-        let url = '/activity';
+    async changeRemote({_id,point,reward,enable}){
+        let url = '/promotion';
         let $api = $post;
         if(_id){
             $api = $put;
             url = url + '/' + _id;
         }
         try{
-            await $api(url,{title,desc,picture,enable});
+            await $api(url,{point,reward,enable});
             Modal.success({
                 title:'提示',
                 content: '提交成功'
@@ -58,62 +46,63 @@ class Page extends PureComponent{
        
     }
     submit = ()=>{
-        let {picture} = this.acitvity;
-        if(!picture){
+        let arr =  this.strategy.split('-');
+        let point = parseInt(arr[0]);
+        let reward = parseInt(arr[1]);
+        if(typeof point != 'number' || typeof reward != 'number'){
             Modal.warn({
-                title:'图片不能为空'
+                title:'格式不正确'
             });
             return false;
         }
-        this.changeRemote(this.acitvity);
+        if(point <= reward){
+            Modal.warn({
+                title:'金额设置不对'
+            });
+            return false;
+        }
+        Object.assign(this.promotion,{point,reward})
+        Modal.confirm({
+            title: '提示',
+            content:`满${point}减${reward}?`,
+            onOk:()=>{
+                this.changeRemote(this.promotion);
+            }
+
+        });
+        
     }
-    async getList(){
+    async getData(){
         try{
-            let res = await $get('/activity');
-            let obj = res.data[0] || {};
-            this.acitvity = Object.assign(this.acitvity,obj);
+            let res = await $get('/promotion');
+            let obj = res.data || {};
+            this.promotion = Object.assign(this.promotion,obj);
+            this.strategy = this.promotion.point + '-' + this.promotion.reward;
             this.loading = false;
         }catch(e){
             console.log(e);
         }
     }
     componentWillMount(){
-        this.getList()
+        this.getData()
     }
     render(){
         if(this.loading){
             return null;
         }
-        let {enable,picture,title,desc} = this.acitvity;
         return (
             <div>
                 <Row>
-                    <Input placeholder="活动标题" value={title} onChange={this.onChangeTitle}/>
+                    设置满减规则:输入文字(如:100-20代表满100减20)
                 </Row>
                 <Row>
-                    <div>
-                        建议 750 * 1366 的jpg格式图片<br/>
-                    </div>
-                    <Upload name="file" 
-                        showUploadList={false}
-                        onChange={this.uploadPicture}
-                        action={uploadAction}>
-                        <Button>
-                            <Icon type="upload" /> 上传活动封面
-                        </Button>
-                    </Upload>
+                    <Input placeholder="20-5" value={this.strategy} onChange={this.onChangeStrategy}/>
                 </Row>
                 <Row>
-                    { picture ? <div ><img style={{'maxWidth':375}} src={serverUrl + picture}/></div> : null }
-                </Row>
-                <Row>
-                    <TextArea rows={4} placeholder="活动描述" value={desc} onChange={this.onChangeTextArea}/>
-                </Row>
-                <Row>
-                    <Col>是否上线</Col>
+                    <Col>是否生效</Col>
                     <Switch 
                         onChange={this.onChangeSwitch}
-                        checked={enable}
+                        checked={this.promotion.enable}
                         checkedChildren={<Icon type="check" />} 
                         unCheckedChildren={<Icon type="cross" />}/>
                 </Row>
