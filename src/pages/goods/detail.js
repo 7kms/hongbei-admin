@@ -61,12 +61,13 @@ class GoodsDetail extends React.PureComponent{
         let {_id} = this.props.match.params;
         Promise.all([$get(`/cakes/${_id}`), $get('/category')])
         .then(res=>{
+            let info = res[0].data.res;
             this.categoryList = res[1].data;
-            this.info = {...res[0].data}
-            this.info.coverLList = this.generatePictureList([res[0].data.cover])
-            this.info.coverLList2 = this.generatePictureList([res[0].data.mainPageCover])
-            this.info.picLList = this.generatePictureList(res[0].data.pictures)
-            this.standardList = res[0].data.priceInfo || [];
+            this.info = {...info}
+            this.info.coverLList = this.generatePictureList([info.cover])
+            this.info.coverLList2 = this.generatePictureList([info.mainPageCover])
+            this.info.picLList = this.generatePictureList(info.pictures)
+            this.standardList = info.priceInfo || [];
             this.initialPicture = true;
             this.loading = false;
             console.log(this,this.initialPicture)
@@ -238,7 +239,7 @@ class GoodsDetail extends React.PureComponent{
                 </div>
                  <Form onSubmit={this.handleSubmit}>
                     <Row type="flex" justify="space-between">
-                        <Col span={12}>
+                        <Col span={8}>
                             <div className="dfn-label">商品名称</div>
                             <FormItem>
                                 {getFieldDecorator('name', {
@@ -249,11 +250,24 @@ class GoodsDetail extends React.PureComponent{
                                 )}
                             </FormItem>
                         </Col>
-                        <Col span={12}>
+                        <Col span={8}>
                             <div className="dfn-label">商品库存(个)</div>
                             <FormItem>
                                 {getFieldDecorator('store', {
                                     initialValue: info.store,
+                                    rules: [
+                                        { required: true, message: '请填写商品库存!' },
+                                        { pattern: /^\d+$/, message: '库存只能填写整数!'}],
+                                })(
+                                    <Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="text" placeholder="商品库存" />
+                                )}
+                            </FormItem>
+                        </Col>
+                        <Col span={8}>
+                            <div className="dfn-label">自定义销量</div>
+                            <FormItem>
+                                {getFieldDecorator('displaySales', {
+                                    initialValue: info.displaySales,
                                     rules: [
                                         { required: true, message: '请填写商品库存!' },
                                         { pattern: /^\d+$/, message: '库存只能填写整数!'}],
